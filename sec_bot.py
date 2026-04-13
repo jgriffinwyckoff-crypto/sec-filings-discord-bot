@@ -6,15 +6,20 @@ DISCORD_WEBHOOK = "https://discord.com/api/webhooks/1493059995271696539/HdsqIdmj
 
 seen = set()
 
-def send_to_discord(msg):
-    requests.post(DISCORD_WEBHOOK, json={"content": msg})
+def load_biotech_tickers():
+    with open("biotech_tickers.txt", "r") as f:
+        return {line.strip().upper() for line in f if line.strip()}
 
-print("SEC watcher started", flush=True)
+BIOTECH_TICKERS = load_biotech_tickers()
+
+def send_to_discord(msg):
+    requests.post(DISCORD_WEBHOOK, json={"content": msg}, timeout=15)
+
+print("Biotech SEC watcher started", flush=True)
+print(f"Loaded {len(BIOTECH_TICKERS)} biotech tickers", flush=True)
 
 while True:
-
     try:
-
         print("Checking filings...", flush=True)
 
         feed = feedparser.parse(
@@ -22,26 +27,34 @@ while True:
         )
 
         for entry in feed.entries:
-
             title = entry.title
             link = entry.link
+            title_upper = title.upper()
 
             if link in seen:
                 continue
 
             seen.add(link)
 
-            if "8-K" in title:
+            if "8-K" not in title_upper:
+                continue
 
-                msg = f"""
-🚨 **SEC Filing**
+            matched_ticker = None
+            for ticker in BIOTECH_TICKERS:
+                if ticker in title_upper:
+                    matched_ticker = ticker
+                    break
 
-{title}
+            if not matched_ticker:
+                continue
 
-{link}
-"""
+            msg = f"""🚨 **Biotech SEC Filing**
+**Ticker:** {matched_ticker}
+**Title:** {title}
+{link}"""
 
-                send_to_discord(msg)
+            print(f"Posting {matched_ticker}: {title}", flush=True)
+            send_to_discord(msg)
 
         time.sleep(60)
 
