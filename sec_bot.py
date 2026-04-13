@@ -2,7 +2,7 @@ import requests
 import feedparser
 import time
 
-DISCORD_WEBHOOK = "PASTE_YOUR_WEBHOOK_HERE"
+DISCORD_WEBHOOK = "https://discord.com/api/webhooks/1493059995271696539/HdsqIdmj2AgD8AtBZi6SJS--uQS3Mx9SVExT4QqQ0PCfh60SuMVFr4Gl4omrk45eMomR"
 
 seen = set()
 
