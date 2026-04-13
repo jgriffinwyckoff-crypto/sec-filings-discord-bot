@@ -17,6 +17,7 @@ def send_to_discord(msg):
 
 print("Biotech SEC watcher started", flush=True)
 print(f"Loaded {len(BIOTECH_TICKERS)} biotech tickers", flush=True)
+send_to_discord(f"Check Loaded {len(BIOTECH_TICKERS)} biotech tickets and bot is live")
 
 while True:
     try:
