@@ -1,64 +1,20 @@
 import requests
-import feedparser
 import time
 
-DISCORD_WEBHOOK = "https://discord.com/api/webhooks/1493059995271696539/HdsqIdmj2AgD8AtBZi6SJS--uQS3Mx9SVExT4QqQ0PCfh60SuMVFr4Gl4omrk45eMomR"
+DISCORD_WEBHOOK = "PASTE_YOUR_WEBHOOK_HERE"
 
-seen = set()
+def send_to_discord(message):
+    r = requests.post(DISCORD_WEBHOOK, json={"content": message}, timeout=15)
+    print("Discord status:", r.status_code, flush=True)
+    print("Discord response:", r.text, flush=True)
 
-def load_biotech_tickers():
-    with open("biotech_tickers.txt", "r") as f:
-        return {line.strip().upper() for line in f if line.strip()}
+print("Bot file started", flush=True)
 
-BIOTECH_TICKERS = load_biotech_tickers()
-
-def send_to_discord(msg):
-    requests.post(DISCORD_WEBHOOK, json={"content": msg}, timeout=15)
-
-print("Biotech SEC watcher started", flush=True)
-print(f"Loaded {len(BIOTECH_TICKERS)} biotech tickers", flush=True)
-send_to_discord(f"✅ Loaded {len(BIOTECH_TICKERS)} biotech tickers and bot is live")
+try:
+    send_to_discord("✅ Debug test from Railway startup")
+except Exception as e:
+    print("Startup error:", str(e), flush=True)
 
 while True:
-    try:
-        print("Checking filings...", flush=True)
-
-        feed = feedparser.parse(
-            "https://www.sec.gov/cgi-bin/browse-edgar?action=getcurrent&output=atom"
-        )
-
-        for entry in feed.entries:
-            title = entry.title
-            link = entry.link
-            title_upper = title.upper()
-
-            if link in seen:
-                continue
-
-            seen.add(link)
-
-            if "8-K" not in title_upper:
-                continue
-
-            matched_ticker = None
-            for ticker in BIOTECH_TICKERS:
-                if ticker in title_upper:
-                    matched_ticker = ticker
-                    break
-
-            if not matched_ticker:
-                continue
-
-            msg = f"""🚨 **Biotech SEC Filing**
-**Ticker:** {matched_ticker}
-**Title:** {title}
-{link}"""
-
-            print(f"Posting {matched_ticker}: {title}", flush=True)
-            send_to_discord(msg)
-
-        time.sleep(60)
-
-    except Exception as e:
-        print("Error:", e, flush=True)
-        time.sleep(60)
+    print("Heartbeat...", flush=True)
+    time.sleep(60)
