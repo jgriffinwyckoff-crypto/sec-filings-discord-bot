@@ -7,4 +7,4 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY . .
 
-CMD ["python", "sec_bot.py"]
+CMD ["python", "-u"; "sec_bot.py"]
