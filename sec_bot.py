@@ -1,8 +1,9 @@
+import os
 import requests
 import feedparser
 import time
 
-DISCORD_WEBHOOK = "https://discord.com/api/webhooks/1493059995271696539/HdsqIdmj2AgD8AtBZi6SJS--uQS3Mx9SVExT4QqQ0PCfh60SuMVFr4Gl4omrk45eMomR"
+DISCORD_WEBHOOK = os.getenv("DISCORD_WEBHOOK")
 
 seen = set()
 
@@ -13,6 +14,8 @@ def load_biotech_tickers():
 BIOTECH_TICKERS = load_biotech_tickers()
 
 def send_to_discord(message):
+    if not DISCORD_WEBHOOK:
+        raise RuntimeError("DISCORD_WEBHOOK environment variable is not set")
     requests.post(DISCORD_WEBHOOK, json={"content": message}, timeout=15)
 
 print("Biotech SEC watcher started", flush=True)
